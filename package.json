@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "start": "node src/index.js",
+  "lint": "eslint src/**/*.js || true",
+  "test": "jest --coverage || true",
+  "dev": "nodemon src/index.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
