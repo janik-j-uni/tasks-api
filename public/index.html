@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Projektboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Unser Kanban Board</h1>
+        <button id="addCardBtn">+ Neue Card erstellen</button>
+    </header>
+
+    <main class="board">
+        <div class="column" data-status="todo">
+            <h2>To Do</h2>
+            <div class="card-list" id="list-todo"></div>
+        </div>
+
+        <div class="column" data-status="in_progress">
+            <h2>In Progress (Max: 3)</h2>
+            <div class="card-list" id="list-in_progress"></div>
+        </div>
+
+        <div class="column" data-status="done">
+            <h2>Done</h2>
+            <div class="card-list" id="list-done"></div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

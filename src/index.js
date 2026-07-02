@@ -8,14 +8,16 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static('public')); // <-- Genau hier einfügen!
 
 // Routen registrieren
 app.use('/api/tasks', tasksRouter);
 app.use('/api/board', boardRouter); // Neu!
 
-// Basis-Route für den API-Check
-app.get('/', (req, res) => {
-    res.json({ name: 'Tasks-API', version: '1.0.0' });
+
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Block 4 API running' });
 });
 
 app.listen(PORT, () => {

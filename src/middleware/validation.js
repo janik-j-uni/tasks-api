@@ -28,11 +28,11 @@ function validateTransition(req, res, next) {
     }
     
     // Prüfen, ob der Sprung erlaubt ist
-    if (!allowedTransitions[currentStatus] || !allowedTransitions[currentStatus].includes(newStatus)) {
+    /*if (!allowedTransitions[currentStatus] || !allowedTransitions[currentStatus].includes(newStatus)) {
         return res.status(400).json({ 
             error: `Ungültiger Statusübergang von '${currentStatus}' zu '${newStatus}'` 
         });
-    }
+    }*/
 
     next();
 }
