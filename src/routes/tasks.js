@@ -1,26 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const { v4: uuidv4 } = require('uuid');
 
-// Unsere temporäre "Datenbank" im Arbeitsspeicher
-let tasks = [];
+// Hier importieren wir dein Datenmodell aus src/models/task.js
+const Task = require('../models/task');
 
 // 1. Alle Karten abrufen (GET /api/tasks)
 router.get('/', (req, res) => {
-    res.json({ count: tasks.length, tasks: tasks });
+    // Holt alle Tasks über die findAll-Methode deines Modells
+    const allTasks = Task.findAll();
+    res.json({ count: allTasks.length, tasks: allTasks });
 });
 
 // 2. Neue Karte erstellen (POST /api/tasks)
 router.post('/', (req, res) => {
-    const newTask = {
-        id: uuidv4(),
-        title: req.body.title,
-        description: req.body.description || '',
-        status: 'todo', // Jede neue Karte startet in "To Do"
-        priority: req.body.priority || 'medium'
-    };
+    // Wir übergeben den req.body direkt an die create-Funktion deines Modells
+    // Dein Modell kümmert sich um die UUID, Priorität und Timestamps!
+    const newTask = Task.create(req.body);
     
-    tasks.push(newTask); // Karte in unsere Liste speichern
     res.status(201).json(newTask);
 });
 
@@ -29,13 +25,28 @@ router.patch('/:id/transition', (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     
-    const task = tasks.find(t => t.id === id);
-    if (!task) {
+    // Nutzt die transition-Funktion deines Modells (inkl. startedAt/completedAt Zeitstempeln!)
+    const updatedTask = Task.transition(id, status);
+    
+    if (!updatedTask) {
         return res.status(404).json({ error: 'Task nicht gefunden' });
     }
     
-    task.status = status; // Status aktualisieren (z.B. von "todo" auf "in_progress")
-    res.json({ message: 'Status aktualisiert', task: task });
+    res.json({ message: 'Status aktualisiert', task: updatedTask });
+});
+
+// 4. NEU: Karte löschen (DELETE /api/tasks/:id)
+router.delete('/:id', (req, res) => {
+    const { id } = req.params;
+    
+    // Ruft die neue remove-Funktion in deinem Modell auf
+    const success = Task.remove(id);
+    
+    if (!success) {
+        return res.status(404).json({ error: 'Task nicht gefunden und konnte nicht gelöscht werden' });
+    }
+    
+    res.json({ message: 'Karte erfolgreich gelöscht' });
 });
 
 module.exports = router;
