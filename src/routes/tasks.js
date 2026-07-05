@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../models/task');
 const { validateTask, validateTransition } = require('../middleware/validation');
+
 // 1. Alle Karten abrufen (GET /api/tasks)
 router.get('/', (req, res) => {
     const tasks = Task.findAll();
@@ -30,6 +31,19 @@ router.patch('/:id/transition', validateTransition, (req, res) => {
     }
 
     res.json({ message: 'Status aktualisiert', task: task });
+});
+
+// 4. Karte löschen (DELETE /api/tasks/:id)
+router.delete('/:id', (req, res) => {
+    const { id } = req.params;
+
+    const success = Task.remove(id);
+
+    if (!success) {
+        return res.status(404).json({ error: 'Task nicht gefunden und konnte nicht gelöscht werden' });
+    }
+
+    res.json({ message: 'Karte erfolgreich gelöscht' });
 });
 
 module.exports = router;

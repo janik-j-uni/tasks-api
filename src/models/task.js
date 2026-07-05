@@ -50,9 +50,19 @@ function transition(id, newStatus) {
     return task;
 }
 
+// NEU: Funktion zum Löschen
+function remove(id) {
+    const index = tasks.findIndex(t => t.id === id);
+    if (index === -1) return false;
+    
+    tasks.splice(index, 1);
+    return true;
+}
+
 module.exports = {
     create,
     findAll,
     findById,
-    transition
+    transition,
+    remove // NEU: Hier exportieren!
 };

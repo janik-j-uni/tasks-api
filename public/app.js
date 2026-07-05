@@ -9,13 +9,12 @@ async function fetchTasks() {
         const data = await response.json();
         
         let tasks = [];
-        // Wir prüfen einfach alle gängigen Daten-Verpackungen deines Backends:
         if (Array.isArray(data)) {
-            tasks = data; // Falls das Backend direkt eine Liste schickt
+            tasks = data; 
         } else if (data.tasks) {
-            tasks = data.tasks; // Falls es wie in Woche 7 im "tasks"-Feld steckt
+            tasks = data.tasks; 
         } else if (data.data) {
-            tasks = data.data; // Falls es im "data"-Feld steckt
+            tasks = data.data; 
         }
 
         renderTasks(tasks);
@@ -26,7 +25,6 @@ async function fetchTasks() {
 
 // 2. Tasks im HTML anzeigen
 function renderTasks(tasks) {
-    // Spalten leeren, bevor wir sie neu befüllen
     document.getElementById('list-todo').innerHTML = '';
     document.getElementById('list-in_progress').innerHTML = '';
     document.getElementById('list-done').innerHTML = '';
@@ -34,19 +32,30 @@ function renderTasks(tasks) {
     tasks.forEach(task => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.draggable = true; // Macht die Karte verschiebbar
+        card.draggable = true; 
         card.dataset.id = task.id;
 
+        // NEU: HTML um einen Lösch-Button (Klasse: delete-btn) erweitert
         card.innerHTML = `
-            <h3>${task.title}</h3>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <h3 style="margin: 0;">${task.title}</h3>
+                <button class="delete-btn" style="background: red; color: white; border: none; border-radius: 3px; cursor: pointer;">X</button>
+            </div>
             <p>${task.description || ''}</p>
         `;
 
-        // Event Listener für Drag-and-Drop anheften
         card.addEventListener('dragstart', handleDragStart);
         card.addEventListener('dragend', handleDragEnd);
 
-        // Status anpassen (Backlog wird zu To Do)
+        // NEU: Event-Listener für den Lösch-Button anhängen
+        const deleteBtn = card.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', () => {
+            // Sicherheitsabfrage vor dem Löschen
+            if (confirm(`Möchtest du die Karte "${task.title}" wirklich löschen?`)) {
+                deleteTask(task.id);
+            }
+        });
+
         let status = task.status;
         if (status === 'backlog') status = 'todo'; 
         
@@ -61,7 +70,6 @@ function renderTasks(tasks) {
 document.getElementById('addCardBtn').addEventListener('click', async () => {
     const title = prompt('Titel der neuen Aufgabe (min. 3 Zeichen):');
     
-    // Validierung: Backend lehnt Titel unter 3 Zeichen ab!
     if (!title || title.trim().length < 3) {
         alert('Fehler: Der Titel muss mindestens 3 Zeichen lang sein!');
         return;
@@ -85,7 +93,7 @@ document.getElementById('addCardBtn').addEventListener('click', async () => {
         });
 
         if (response.ok) {
-            fetchTasks(); // Board neu laden, damit die Karte erscheint
+            fetchTasks(); 
         } else {
             const errorData = await response.json();
             alert('Fehler vom Server: ' + (errorData.error || 'Unbekanntes Problem'));
@@ -113,34 +121,31 @@ function handleDragEnd() {
     }, 0);
 }
 
-// Die Spalten konfigurieren, damit sie Karten aufnehmen können
 document.querySelectorAll('.column').forEach(column => {
     column.addEventListener('dragover', e => {
-        e.preventDefault(); // Notwendig, um den Drop zuzulassen
+        e.preventDefault(); 
     });
 
     column.addEventListener('dragenter', e => {
         e.preventDefault();
-        column.style.backgroundColor = '#d3d5d9'; // Visuelles Feedback beim Drüberziehen
+        column.style.backgroundColor = '#d3d5d9'; 
     });
 
     column.addEventListener('dragleave', e => {
-        column.style.backgroundColor = '#ebecf0'; // Feedback entfernen
+        column.style.backgroundColor = '#ebecf0'; 
     });
 
     column.addEventListener('drop', async e => {
-        column.style.backgroundColor = '#ebecf0'; // Feedback entfernen
+        column.style.backgroundColor = '#ebecf0'; 
         if (!draggedCard) return;
 
         const newStatus = column.getAttribute('data-status');
         const list = column.querySelector('.card-list');
         
-        // Karte im Frontend direkt in die neue Spalte verschieben
         list.appendChild(draggedCard);
 
         const taskId = draggedCard.dataset.id;
         
-        // Änderung ans Backend senden (PATCH /transition)
         try {
             await fetch(`${API_URL}/${taskId}/transition`, {
                 method: 'PATCH',
@@ -152,7 +157,28 @@ document.querySelectorAll('.column').forEach(column => {
         } catch (error) {
             console.error('Fehler beim Aktualisieren des Status:', error);
             alert('Status konnte nicht gespeichert werden!');
-            fetchTasks(); // Bei Fehler das Board sicherheitshalber neu laden
+            fetchTasks(); 
         }
     });
 });
+
+// ==========================================
+// 5. NEU: KARTE LÖSCHEN (API CALL)
+// ==========================================
+async function deleteTask(taskId) {
+    try {
+        const response = await fetch(`${API_URL}/${taskId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            fetchTasks(); // Lade das Board nach erfolgreichem Löschen neu
+        } else {
+            const errorData = await response.json();
+            alert('Fehler vom Server: ' + (errorData.error || 'Karte konnte nicht gelöscht werden'));
+        }
+    } catch (error) {
+        console.error('Netzwerkfehler beim Löschen:', error);
+        alert('Netzwerkfehler: Karte konnte nicht gelöscht werden.');
+    }
+}
