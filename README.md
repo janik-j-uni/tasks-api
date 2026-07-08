@@ -24,7 +24,7 @@ Das Sprint-Ziel "Basis-CRUD für Cards vollständig implementieren und Drag-and-
 | US-002: Cards in Spalten organisieren | ✅ Done | 5 |
 | US-003: Drag-and-Drop zwischen Spalten | ✅ Done | 8 |
 | US-004: WIP-Limit setzen | ✅ Done | 3 |
-| US-005: Card löschen | 📝 Backlog | 2 |
+| US-005: Card löschen | ✅ Done | 3 |
 | US-006: Card bearbeiten | 📝 Backlog | 3 |
 
 ## 🚀 Installation & Start
