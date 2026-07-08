@@ -1,0 +1,34 @@
+[
+  {
+    "id": "4bdaf787-5a65-42dc-96e8-f3cacfe3b1fc",
+    "title": "Test1234567",
+    "description": "Test von Postamn123.",
+    "status": "in_progress",
+    "priority": "low",
+    "assignee": "Elmi",
+    "tags": [],
+    "storyPoints": 0,
+    "createdAt": "2026-07-08T18:47:23.875Z",
+    "updatedAt": "2026-07-08T19:10:41.003Z",
+    "startedAt": "2026-07-08T18:57:40.330Z",
+    "completedAt": null,
+    "statusHistory": [
+      {
+        "status": "backlog",
+        "timestamp": "2026-07-08T18:47:23.876Z"
+      },
+      {
+        "status": "todo",
+        "timestamp": "2026-07-08T18:57:37.601Z"
+      },
+      {
+        "status": "in_progress",
+        "timestamp": "2026-07-08T18:57:40.330Z"
+      },
+      {
+        "status": "in_progress",
+        "timestamp": "2026-07-08T19:10:41.004Z"
+      }
+    ]
+  }
+]

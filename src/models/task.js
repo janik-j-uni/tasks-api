@@ -1,7 +1,34 @@
+const fs = require('fs');
+const path = require('path');
 const { randomUUID: uuidv4 } = require('crypto');
 
-// Das simulierte In-Memory-Daten-Array
+// 1. Pfad zur JSON-Datei festlegen
+const dataFile = path.join(__dirname, '..', '..', 'data', 'tasks.json');
+
+// 2. Leeres Array initialisieren (Wichtig: Vor dem Einlesen!)
 let tasks = [];
+
+// 3. Beim Serverstart prüfen, ob schon Daten existieren, und diese laden
+if (fs.existsSync(dataFile)) {
+    try {
+        const rawData = fs.readFileSync(dataFile, 'utf-8');
+        tasks = JSON.parse(rawData);
+    } catch (e) {
+        console.error("Fehler beim Lesen der JSON-Datei:", e);
+        tasks = [];
+    }
+}
+
+// 4. Zentrale Hilfsfunktion zum Speichern auf die Festplatte
+function saveTasks() {
+    try {
+        fs.writeFileSync(dataFile, JSON.stringify(tasks, null, 2));
+    } catch (e) {
+        console.error("Fehler beim Schreiben der JSON-Datei:", e);
+    }
+}
+
+// --- CRUD & KANBAN FUNKTIONEN ---
 
 function create(data) {
     const newTask = {
@@ -19,7 +46,11 @@ function create(data) {
         completedAt: null,
         statusHistory: [{ status: 'backlog', timestamp: new Date().toISOString() }]
     };
+    
     tasks.push(newTask);
+    
+    saveTasks(); // SICHERUNG: Speichern nach dem Erstellen
+    
     return newTask;
 }
 
@@ -29,6 +60,23 @@ function findAll() {
 
 function findById(id) {
     return tasks.find(t => t.id === id);
+}
+// NEU: Die Update-Funktion für den PUT-Request
+function update(id, data) {
+    const task = findById(id);
+    if (!task) return null;
+    
+    if (data.title !== undefined) task.title = data.title;
+    if (data.description !== undefined) task.description = data.description;
+    if (data.priority !== undefined) task.priority = data.priority;
+    if (data.assignee !== undefined) task.assignee = data.assignee;
+    if (data.tags !== undefined) task.tags = data.tags;
+    if (data.storyPoints !== undefined) task.storyPoints = data.storyPoints;
+    
+    task.updatedAt = new Date().toISOString();
+    
+    saveTasks();
+    return task;
 }
 
 function transition(id, newStatus) {
@@ -47,22 +95,27 @@ function transition(id, newStatus) {
         task.completedAt = new Date().toISOString();
     }
     
+    saveTasks(); // SICHERUNG: Speichern nach dem Verschieben
+    
     return task;
 }
 
-// NEU: Funktion zum Löschen
 function remove(id) {
     const index = tasks.findIndex(t => t.id === id);
     if (index === -1) return false;
     
     tasks.splice(index, 1);
+    
+    saveTasks(); // SICHERUNG: Speichern nach dem Löschen
+    
     return true;
 }
 
 module.exports = {
+    update,
     create,
     findAll,
     findById,
     transition,
-    remove // NEU: Hier exportieren!
+    remove
 };
