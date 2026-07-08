@@ -7,6 +7,9 @@ services:
     container_name: tasks-api
     ports:
       - "3000:3000"
+    volumes:
+      # WICHTIG FÜR DIE DEMO: Bindet deinen lokalen Ordner in den Container ein
+      - ./data:/app/data
     environment:
       - NODE_ENV=production
       - PORT=3000
